@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic-Tac-Toe · Soft UI</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base: '#E3E5F5',
+            sage: '#A5B5A5',
+            lavender: '#D1C4E9',
+            muted: '#A3B1C6',
+            ink: '#4A4A4A',
+            offwhite: '#F7F7F4'
+          },
+          fontFamily: { sans: ['Poppins', 'system-ui', 'sans-serif'] }
+        }
+      }
+    };
+  </script>
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Anime.js -->
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #E3E5F5;
+      --sd: #bec1d6;          /* shadow (gelap) */
+      --sl: #ffffff;          /* highlight (terang) */
+      --ink: #4A4A4A;
+      --x: #A3B1C6;           /* Muted Blue */
+      --o: #A5B5A5;           /* Sage Green */
+      --lav: #D1C4E9;         /* Soft Lavender */
+      --bw: min(78vw, 400px); /* lebar papan */
+    }
+
+    * { -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Poppins', system-ui, sans-serif;
+    }
+
+    /* ---------- Neumorphism utilities ---------- */
+    .neu-raised {
+      background: var(--bg);
+      box-shadow: 12px 12px 24px var(--sd), -12px -12px 24px var(--sl);
+    }
+    .neu-inset {
+      background: var(--bg);
+      box-shadow: inset 6px 6px 12px var(--sd), inset -6px -6px 12px var(--sl);
+    }
+    .neu-btn {
+      background: var(--bg);
+      box-shadow: 6px 6px 12px var(--sd), -6px -6px 12px var(--sl);
+      transition: box-shadow .25s ease, transform .2s ease, color .2s ease;
+    }
+    .neu-btn:hover {
+      box-shadow: 3px 3px 7px var(--sd), -3px -3px 7px var(--sl);
+    }
+    .neu-btn:active,
+    .neu-btn.pressed {
+      box-shadow: inset 4px 4px 8px var(--sd), inset -4px -4px 8px var(--sl);
+      transform: scale(.98);
+    }
+    .neu-select:focus-within {
+      outline: 2px solid var(--lav);
+      outline-offset: 3px;
+    }
+    .neu-select select { color: var(--ink); }
+    .neu-select select option { background: var(--bg); }
+
+    /* ---------- Turn indicator ---------- */
+    .pill {
+      background: var(--bg);
+      box-shadow: 6px 6px 12px var(--sd), -6px -6px 12px var(--sl);
+      transition: box-shadow .35s ease, opacity .35s ease;
+      opacity: .65;
+    }
+    .pill.active {
+      box-shadow: inset 5px 5px 10px var(--sd), inset -5px -5px 10px var(--sl);
+      opacity: 1;
+    }
+    .pill .dot {
+      width: 8px; height: 8px; border-radius: 9999px;
+      background: transparent;
+      transition: background .3s ease;
+    }
+    .pill.active .dot { animation: pulse 1.4s ease-in-out infinite; }
+    #pillX.active .dot { background: var(--x); }
+    #pillO.active .dot { background: var(--o); }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.6); opacity: .45; }
+    }
+    .badge {
+      box-shadow: 4px 4px 8px var(--sd), -4px -4px 8px var(--sl);
+      text-shadow: 1px 1px 2px rgba(120,125,150,.35), -1px -1px 2px #fff;
+    }
+
+    .thinking span {
+      display: inline-block;
+      animation: blink 1.2s infinite both;
+    }
+    .thinking span:nth-child(2) { animation-delay: .2s; }
+    .thinking span:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink { 0%, 80%, 100% { opacity: .2; } 40% { opacity: 1; } }
+
+    /* ---------- Board ---------- */
+    .board {
+      display: grid;
+      width: var(--bw);
+      gap: var(--gap, 14px);
+    }
+    .cell {
+      aspect-ratio: 1 / 1;
+      border-radius: var(--r, 22px);
+      background: var(--bg);
+      box-shadow: inset 5px 5px 10px var(--sd), inset -5px -5px 10px var(--sl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: calc(var(--bw) / var(--n) * .46);
+      font-weight: 800;
+      line-height: 1;
+      cursor: pointer;
+      user-select: none;
+      transition: box-shadow .25s ease, background .35s ease;
+      outline: none;
+    }
+    .cell:focus-visible { outline: 2px solid var(--lav); outline-offset: 2px; }
+    .cell:not(.filled):hover {
+      box-shadow: inset 2px 2px 5px var(--sd), inset -2px -2px 5px var(--sl);
+    }
+    .board.locked .cell { cursor: default; }
+    .board.locked .cell:not(.filled):hover {
+      box-shadow: inset 5px 5px 10px var(--sd), inset -5px -5px 10px var(--sl);
+    }
+    .cell.filled {
+      cursor: default;
+      box-shadow: inset 3px 3px 7px var(--sd), inset -3px -3px 7px var(--sl);
+    }
+    .mark {
+      display: inline-block;
+      text-shadow: 2px 2px 4px rgba(120,125,150,.35), -2px -2px 4px rgba(255,255,255,.95);
+      will-change: transform, opacity;
+    }
+    .cell.is-x .mark { color: var(--x); }
+    .cell.is-o .mark { color: var(--o); }
+
+    .cell.win {
+      background: linear-gradient(145deg, #ddd3f0, #c9bce2);
+      box-shadow: 6px 6px 12px var(--sd), -6px -6px 12px var(--sl);
+    }
+    .cell.win.is-x .mark { color: #6f80a3; text-shadow: 1px 1px 2px rgba(255,255,255,.6); }
+    .cell.win.is-o .mark { color: #6e866e; text-shadow: 1px 1px 2px rgba(255,255,255,.6); }
+
+    .board.done .cell:not(.win) { opacity: .7; transition: opacity .4s ease, box-shadow .25s ease; }
+  </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-8 antialiased">
+
+  <main class="neu-raised w-full max-w-[520px] rounded-[28px] p-5 sm:p-8">
+
+    <!-- Header -->
+    <header class="text-center mb-6">
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-ink">
+        Tic<span class="text-muted">·</span>Tac<span class="text-sage">·</span>Toe
+      </h1>
+    </header>
+
+    <!-- Controls -->
+    <section class="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto] gap-4 items-end mb-6">
+      <label class="block">
+        <span class="block text-[11px] font-semibold uppercase tracking-wider text-ink/60 ml-2 mb-2">Ukuran Grid</span>
+        <div class="neu-btn neu-select relative rounded-2xl">
+          <select id="sizeSelect" class="w-full appearance-none bg-transparent py-3 pl-4 pr-10 text-sm font-semibold outline-none cursor-pointer rounded-2xl">
+            <option value="3" selected>3 × 3</option>
+            <option value="4">4 × 4</option>
+            <option value="5">5 × 5</option>
+          </select>
+          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/50" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+        </div>
+      </label>
+
+      <label class="block">
+        <span class="block text-[11px] font-semibold uppercase tracking-wider text-ink/60 ml-2 mb-2">Kesulitan</span>
+        <div class="neu-btn neu-select relative rounded-2xl">
+          <select id="difficultySelect" class="w-full appearance-none bg-transparent py-3 pl-4 pr-10 text-sm font-semibold outline-none cursor-pointer rounded-2xl">
+            <option value="easy">Mudah</option>
+            <option value="medium" selected>Sedang</option>
+            <option value="hard">Sulit</option>
+          </select>
+          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/50" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+        </div>
+      </label>
+
+      <button id="resetBtn" type="button"
+        class="neu-btn col-span-2 sm:col-span-1 rounded-2xl py-3 px-5 text-sm font-semibold flex items-center justify-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-lavender">
+        <svg id="resetIcon" class="w-4 h-4 text-muted" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>
+        </svg>
+        Reset
+      </button>
+    </section>
+
+    <!-- Turn indicator -->
+    <section class="neu-inset rounded-3xl p-4 mb-6">
+      <div class="flex gap-3 sm:gap-4">
+        <div id="pillX" class="pill flex-1 rounded-2xl px-3 py-3 flex items-center gap-3">
+          <span class="badge w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-xl font-extrabold text-muted">X</span>
+          <div class="min-w-0">
+            <p class="text-[10px] uppercase tracking-wider text-ink/50 font-semibold leading-tight">Pemain</p>
+            <p class="text-sm font-semibold leading-tight truncate">Anda</p>
+          </div>
+          <span class="dot ml-auto"></span>
+        </div>
+        <div id="pillO" class="pill flex-1 rounded-2xl px-3 py-3 flex items-center gap-3">
+          <span class="badge w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-xl font-extrabold text-sage">O</span>
+          <div class="min-w-0">
+            <p class="text-[10px] uppercase tracking-wider text-ink/50 font-semibold leading-tight">Komputer</p>
+            <p class="text-sm font-semibold leading-tight truncate">AI</p>
+          </div>
+          <span class="dot ml-auto"></span>
+        </div>
+      </div>
+      <p id="statusText" class="text-center text-sm sm:text-base font-semibold mt-4 min-h-[1.5rem]">Giliran Anda</p>
+      <p id="ruleText" class="text-center text-[11px] text-ink/50 mt-1">Susun 3 sejajar untuk menang</p>
+    </section>
+
+    <!-- Board -->
+    <section class="flex justify-center">
+      <div class="neu-raised rounded-3xl p-3 sm:p-4">
+        <div id="board" class="board" role="grid" aria-label="Papan Tic-Tac-Toe"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  (() => {
+    'use strict';
+
+    const HUMAN = 'X';
+    const AI = 'O';
+    const WIN_SCORE = 1e7;
+
+    const $ = (id) => document.getElementById(id);
+    const boardEl = $('board');
+    const sizeSel = $('sizeSelect');
+    const diffSel = $('difficultySelect');
+    const resetBtn = $('resetBtn');
+    const statusEl = $('statusText');
+    const ruleEl = $('ruleText');
+    const pillX = $('pillX');
+    const pillO = $('pillO');
+    const hasAnime = typeof window.anime === 'function';
+
+    const S = {
+      size: 3,
+      winLength: 3,
+      board: [],
+      current: HUMAN,
+      over: false,
+      busy: false,
+      result: null,
+      difficulty: 'medium',
+      windows: [],      // semua "jendela" garis sepanjang winLength
+      cellWindows: [],  // index jendela yang memuat setiap sel
+      sc: [],           // bobot heuristik
+      cfg: null,
+      deadline: 0,
+      token: 0
+    };
+
+    const DIRS = [[0, 1], [1, 0], [1, 1], [1, -1]];
+
+    /* =========================================================
+       LOGIKA INTI
+       ========================================================= */
+
+    // checkWinner generik: baris, kolom, diagonal & anti-diagonal sesuai winLength
+    function checkWinner(board, size, winLength) {
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const p = board[r * size + c];
+          if (!p) continue;
+          for (const [dr, dc] of DIRS) {
+            const line = [r * size + c];
+            for (let k = 1; k < winLength; k++) {
+              const nr = r + dr * k, nc = c + dc * k;
+              if (nr < 0 || nr >= size || nc < 0 || nc >= size) break;
+              if (board[nr * size + nc] !== p) break;
+              line.push(nr * size + nc);
+            }
+            if (line.length === winLength) return { winner: p, line };
+          }
+        }
+      }
+      if (board.every(Boolean)) return { winner: 'draw', line: [] };
+      return null;
+    }
+
+    function buildWindows(size, L) {
+      const wins = [];
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          for (const [dr, dc] of DIRS) {
+            const er = r + dr * (L - 1), ec = c + dc * (L - 1);
+            if (er < 0 || er >= size || ec < 0 || ec >= size) continue;
+            const w = [];
+            for (let k = 0; k < L; k++) w.push((r + dr * k) * size + (c + dc * k));
+            wins.push(w);
+          }
+        }
+      }
+      const cellWins = Array.from({ length: size * size }, () => []);
+      wins.forEach((w, wi) => w.forEach((idx) => cellWins[idx].push(wi)));
+      S.windows = wins;
+      S.cellWindows = cellWins;
+
+      // Bobot: k bidak dalam satu jendela bersih (tanpa bidak lawan)
+      const sc = [];
+      for (let k = 0; k <= L; k++) {
+        sc.push(k === 0 ? 0 : k === L ? 100000 : k === L - 1 ? 1000 : Math.pow(8, k));
+      }
+      S.sc = sc;
+    }
+
+    // Cek kemenangan cepat hanya pada jendela yang memuat sel terakhir
+    function winsAt(board, idx, p) {
+      if (idx < 0) return false;
+      for (const wi of S.cellWindows[idx]) {
+        const w = S.windows[wi];
+        let ok = true;
+        for (let k = 0; k < w.length; k++) {
+          if (board[w[k]] !== p) { ok = false; break; }
+        }
+        if (ok) return true;
+      }
+      return false;
+    }
+
+    const emptyCells = (board) => {
+      const e = [];
+      for (let i = 0; i < board.length; i++) if (!board[i]) e.push(i);
+      return e;
+    };
+
+    const randomOf = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    /* =========================================================
+       HEURISTIK (pola sejajar sepanjang winLength, mis. 4-sejajar)
+       ========================================================= */
+    function evaluate(board) {
+      let score = 0;
+      const sc = S.sc;
+      for (const w of S.windows) {
+        let a = 0, h = 0;
+        for (let k = 0; k < w.length; k++) {
+          const v = board[w[k]];
+          if (v === AI) a++;
+          else if (v === HUMAN) h++;
+        }
+        if (a && h) continue;           // jendela mati
+        if (a) score += sc[a];
+        else if (h) score -= sc[h] * 1.25; // sedikit lebih defensif
+      }
+      return score;
+    }
+
+    // Skor cepat sebuah langkah (untuk pengurutan langkah / move ordering)
+    function moveScore(board, idx, p) {
+      const sc = S.sc;
+      let s = 0;
+      for (const wi of S.cellWindows[idx]) {
+        const w = S.windows[wi];
+        let own = 0, opp = 0;
+        for (let k = 0; k < w.length; k++) {
+          const v = board[w[k]];
+          if (!v) continue;
+          if (v === p) own++; else opp++;
+        }
+        if (!opp) s += sc[own + 1];          // menyerang
+        if (!own) s += sc[opp + 1] * 0.9;    // bertahan
+      }
+      return s;
+    }
+
+    // Kandidat: untuk papan besar hanya sel yang bertetangga dengan bidak
+    function getCandidates(board) {
+      const n = S.size;
+      const all = emptyCells(board);
+      if (n === 3 || all.length === n * n) return all;
+      const out = [];
+      for (const i of all) {
+        const r = (i / n) | 0, c = i % n;
+        let near = false;
+        outer:
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            if (!dr && !dc) continue;
+            const nr = r + dr, nc = c + dc;
+            if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
+            if (board[nr * n + nc]) { near = true; break outer; }
+          }
+        }
+        if (near) out.push(i);
+      }
+      return out.length ? out : all;
+    }
+
+    function orderedMoves(board, p, limit) {
+      return getCandidates(board)
+        .map((i) => ({ i, s: moveScore(board, i, p) }))
+        .sort((a, b) => b.s - a.s)
+        .slice(0, limit)
+        .map((m) => m.i);
+    }
+
+    /* =========================================================
+       MINIMAX + ALPHA-BETA PRUNING (depth-limited)
+       ========================================================= */
+    function minimax(board, depth, alpha, beta, maximizing, last, empties) {
+      const lastP = maximizing ? HUMAN : AI;
+      if (winsAt(board, last, lastP)) {
+        return lastP === AI ? WIN_SCORE + depth : -WIN_SCORE - depth;
+      }
+      if (empties === 0) return 0;
+      if (depth === 0 || performance.now() > S.deadline) return evaluate(board);
+
+      const p = maximizing ? AI : HUMAN;
+      const moves = orderedMoves(board, p, S.cfg.branch);
+      let best = maximizing ? -Infinity : Infinity;
+
+      for (const m of moves) {
+        board[m] = p;
+        const v = minimax(board, depth - 1, alpha, beta, !maximizing, m, empties - 1);
+        board[m] = null;
+        if (maximizing) {
+          if (v > best) best = v;
+          if (best > alpha) alpha = best;
+        } else {
+          if (v < best) best = v;
+          if (best < beta) beta = best;
+        }
+        if (alpha >= beta) break; // pruning
+      }
+      return best;
+    }
+
+    function depthConfig(size) {
+      if (size === 3) return { depth: 9, branch: 9, rootBranch: 9 };   // penuh untuk 3x3
+      if (size === 4) return { depth: 6, branch: 10, rootBranch: 14 };
+      return { depth: 5, branch: 10, rootBranch: 14 };                 // 5x5
+    }
+
+    /* =========================================================
+       STRATEGI AI
+       ========================================================= */
+    function easyMove(board) {
+      return randomOf(emptyCells(board));
+    }
+
+    function mediumMove(board) {
+      const empties = emptyCells(board);
+      // Blokir jika pemain hampir menang (menang di langkah berikutnya)
+      for (const m of empties) {
+        board[m] = HUMAN;
+        const threat = winsAt(board, m, HUMAN);
+        board[m] = null;
+        if (threat) return m;
+      }
+      return randomOf(empties);
+    }
+
+    function hardMove(board) {
+      const n = S.size;
+      const empties = emptyCells(board);
+
+      if (empties.length === n * n) {
+        if (n % 2) return ((n - 1) / 2) * n + (n - 1) / 2;
+        const h = n / 2;
+        return randomOf([(h - 1) * n + h - 1, (h - 1) * n + h, h * n + h - 1, h * n + h]);
+      }
+
+      // Menang langsung
+      for (const m of empties) {
+        board[m] = AI;
+        const w = winsAt(board, m, AI);
+        board[m] = null;
+        if (w) return m;
+      }
+      // Blokir langsung
+      for (const m of empties) {
+        board[m] = HUMAN;
+        const w = winsAt(board, m, HUMAN);
+        board[m] = null;
+        if (w) return m;
+      }
+
+      S.cfg = depthConfig(n);
+      S.deadline = performance.now() + 1200; // pengaman agar tidak freeze
+
+      const moves = orderedMoves(board, AI, S.cfg.rootBranch);
+      let best = moves[0];
+      let bestV = -Infinity;
+      let alpha = -Infinity;
+
+      for (const m of moves) {
+        board[m] = AI;
+        const v = minimax(board, S.cfg.depth - 1, alpha, Infinity, false, m, empties.length - 1);
+        board[m] = null;
+        if (v > bestV) { bestV = v; best = m; }
+        if (bestV > alpha) alpha = bestV;
+      }
+      return best;
+    }
+
+    function chooseAIMove() {
+      const b = S.board.slice();
+      switch (S.difficulty) {
+        case 'easy': return easyMove(b);
+        case 'hard': return hardMove(b);
+        default: return mediumMove(b);
+      }
+    }
+
+    /* =========================================================
+       UI & ALUR PERMAINAN
+       ========================================================= */
+    function buildBoard() {
+      const n = S.size;
+      const gap = n === 3 ? 14 : n === 4 ? 12 : 10;
+      const radius = n === 3 ? 22 : n === 4 ? 18 : 16;
+
+      boardEl.style.setProperty('--n', n);
+      boardEl.style.setProperty('--gap', gap + 'px');
+      boardEl.style.setProperty('--r', radius + 'px');
+      boardEl.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+      boardEl.classList.remove('locked', 'done');
+      boardEl.innerHTML = '';
+
+      for (let i = 0; i < n * n; i++) {
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'cell';
+        cell.dataset.i = i;
+        cell.setAttribute('role', 'gridcell');
+        cell.setAttribute('aria-label', `Baris ${Math.floor(i / n) + 1}, kolom ${(i % n) + 1}`);
+        cell.addEventListener('click', () => handleCellClick(i));
+        boardEl.appendChild(cell);
+      }
+
+      if (hasAnime) {
+        anime({
+          targets: boardEl.children,
+          scale: [0.8, 1],
+          opacity: [0, 1],
+          duration: 550,
+          easing: 'easeOutQuart',
+          delay: anime.stagger(30, { grid: [n, n], from: 'center' })
+        });
+      }
+    }
+
+    function renderMark(i, p) {
+      const cell = boardEl.children[i];
+      if (!cell) return;
+      cell.classList.add('filled', p === HUMAN ? 'is-x' : 'is-o');
+      cell.setAttribute('aria-label', cell.getAttribute('aria-label') + ': ' + p);
+      const span = document.createElement('span');
+      span.className = 'mark';
+      span.textContent = p;
+      cell.appendChild(span);
+
+      if (hasAnime) {
+        anime({
+          targets: span,
+          scale: [0, 1],
+          rotate: p === HUMAN ? [-90, 0] : [0, 0],
+          opacity: [0, 1],
+          duration: 700,
+          easing: 'easeOutElastic(1, .55)'
+        });
+      }
+    }
+
+    function highlightWin(line) {
+      const cells = line.map((i) => boardEl.children[i]);
+      cells.forEach((c) => c.classList.add('win'));
+      if (hasAnime) {
+        anime({
+          targets: cells,
+          scale: [1, 1.08, 1],
+          duration: 700,
+          easing: 'easeInOutSine',
+          delay: anime.stagger(90)
+        });
+      }
+    }
+
+    function setStatus(html) {
+      if (statusEl.innerHTML === html) return;
+      statusEl.innerHTML = html;
+      if (hasAnime) {
+        anime.remove(statusEl);
+        anime({ targets: statusEl, opacity: [0, 1], translateY: [6, 0], duration: 350, easing: 'easeOutQuad' });
+      }
+    }
+
+    function updateStatus() {
+      pillX.classList.remove('active');
+      pillO.classList.remove('active');
+      boardEl.classList.toggle('locked', S.over || S.busy);
+
+      if (S.over) {
+        boardEl.classList.add('done');
+        const w = S.result.winner;
+        if (w === HUMAN) {
+          pillX.classList.add('active');
+          setStatus('<span class="text-muted">X</span> menang — Selamat!');
+        } else if (w === AI) {
+          pillO.classList.add('active');
+          setStatus('<span class="text-sage">O</span> (AI) menang');
+        } else {
+          setStatus('Permainan seri');
+        }
+        return;
+      }
+
+      if (S.current === HUMAN) {
+        pillX.classList.add('active');
+        setStatus('Giliran Anda — <span class="text-muted font-extrabold">X</span>');
+      } else {
+        pillO.classList.add('active');
+        setStatus('AI <span class="text-sage font-extrabold">O</span> berpikir<span class="thinking"><span>.</span><span>.</span><span>.</span></span>');
+      }
+    }
+
+    function makeMove(i, p) {
+      S.board[i] = p;
+      renderMark(i, p);
+      const res = checkWinner(S.board, S.size, S.winLength);
+      if (res) {
+        S.over = true;
+        S.result = res;
+        if (res.winner !== 'draw') highlightWin(res.line);
+      }
+    }
+
+    function handleCellClick(i) {
+      if (S.over || S.busy || S.current !== HUMAN || S.board[i]) return;
+
+      makeMove(i, HUMAN);
+      if (S.over) { updateStatus(); return; }
+
+      S.current = AI;
+      S.busy = true;
+      updateStatus();
+
+      const token = S.token;
+      setTimeout(() => {
+        if (token !== S.token) return; // game di-reset saat AI berpikir
+        const m = chooseAIMove();
+        if (token !== S.token) return;
+        if (m !== undefined && !S.board[m]) makeMove(m, AI);
+        S.busy = false;
+        if (!S.over) S.current = HUMAN;
+        updateStatus();
+      }, 450);
+    }
+
+    function resetGame() {
+      S.token++;
+      S.size = parseInt(sizeSel.value, 10);
+      S.winLength = Math.min(4, S.size);
+      S.difficulty = diffSel.value;
+      S.board = Array(S.size * S.size).fill(null);
+      S.current = HUMAN;
+      S.over = false;
+      S.busy = false;
+      S.result = null;
+
+      buildWindows(S.size, S.winLength);
+      ruleEl.textContent = `Susun ${S.winLength} sejajar untuk menang`;
+      buildBoard();
+      updateStatus();
+    }
+
+    /* ---------- Events ---------- */
+    sizeSel.addEventListener('change', resetGame);
+    diffSel.addEventListener('change', () => { S.difficulty = diffSel.value; });
+    resetBtn.addEventListener('click', () => {
+      if (hasAnime) {
+        anime({ targets: '#resetIcon', rotate: '-=360', duration: 650, easing: 'easeOutCubic' });
+      }
+      resetGame();
+    });
+
+    resetGame();
+  })();
+  </script>
+</body>
+</html>
