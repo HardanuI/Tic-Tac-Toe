@@ -232,12 +232,12 @@
         Tic<span class="text-muted">·</span>Tac<span class="text-sage">·</span>Toe
       </h1>
 
-      <!-- Controls: Horizontal compact bar on mobile, stacked on desktop -->
-      <div class="grid grid-cols-[1fr_1fr_auto] md:grid-cols-1 gap-2.5 md:gap-4 items-end">
+      <!-- Controls: Compact 2x2 calculator-style grid on mobile, stacked on desktop -->
+      <div class="grid grid-cols-2 md:grid-cols-1 gap-2.5 md:gap-3.5 items-end">
         <label class="block">
           <span class="block text-[10px] md:text-[11px] font-semibold uppercase tracking-wider text-ink/60 ml-1.5 mb-1">Grid</span>
           <div class="neu-btn neu-select relative rounded-2xl">
-            <select id="sizeSelect" class="w-full appearance-none bg-transparent py-2.5 md:py-3 pl-3 md:pl-4 pr-8 text-xs sm:text-sm font-semibold outline-none cursor-pointer rounded-2xl">
+            <select id="sizeSelect" class="w-full appearance-none bg-transparent py-2 md:py-2.5 pl-3 md:pl-4 pr-8 text-xs sm:text-sm font-semibold outline-none cursor-pointer rounded-2xl">
               <option value="3" selected>3 × 3</option>
               <option value="4">4 × 4</option>
               <option value="5">5 × 5</option>
@@ -249,7 +249,7 @@
         <label class="block">
           <span class="block text-[10px] md:text-[11px] font-semibold uppercase tracking-wider text-ink/60 ml-1.5 mb-1">Kesulitan</span>
           <div class="neu-btn neu-select relative rounded-2xl">
-            <select id="difficultySelect" class="w-full appearance-none bg-transparent py-2.5 md:py-3 pl-3 md:pl-4 pr-8 text-xs sm:text-sm font-semibold outline-none cursor-pointer rounded-2xl">
+            <select id="difficultySelect" class="w-full appearance-none bg-transparent py-2 md:py-2.5 pl-3 md:pl-4 pr-8 text-xs sm:text-sm font-semibold outline-none cursor-pointer rounded-2xl">
               <option value="easy">Mudah</option>
               <option value="medium" selected>Sedang</option>
               <option value="hard">Sulit</option>
@@ -258,17 +258,28 @@
           </div>
         </label>
 
+        <label class="block">
+          <span class="block text-[10px] md:text-[11px] font-semibold uppercase tracking-wider text-ink/60 ml-1.5 mb-1">Posisi Anda</span>
+          <div class="neu-btn neu-select relative rounded-2xl">
+            <select id="positionSelect" class="w-full appearance-none bg-transparent py-2 md:py-2.5 pl-3 md:pl-4 pr-8 text-xs sm:text-sm font-semibold outline-none cursor-pointer rounded-2xl">
+              <option value="X" selected>Pertama (X)</option>
+              <option value="O">Kedua (O)</option>
+            </select>
+            <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/50" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+          </div>
+        </label>
+
         <div class="flex gap-2 md:gap-3 items-center">
           <button id="resetBtn" type="button" aria-label="Reset Permainan"
-            class="neu-btn flex-1 rounded-2xl py-2.5 md:py-3 px-3 md:px-4 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 outline-none focus-visible:ring-2 focus-visible:ring-lavender">
+            class="neu-btn flex-1 rounded-2xl py-2 md:py-2.5 px-3 md:px-4 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 outline-none focus-visible:ring-2 focus-visible:ring-lavender">
             <svg id="resetIcon" class="w-4 h-4 text-muted shrink-0" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>
             </svg>
-            <span class="hidden sm:inline md:inline">Reset</span>
+            <span>Reset</span>
           </button>
 
           <button id="muteBtn" type="button" aria-label="Matikan atau Nyalakan Suara" aria-pressed="false" title="Mute / Unmute"
-            class="neu-btn rounded-2xl p-2.5 md:p-3 flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-lavender">
+            class="neu-btn rounded-2xl p-2 md:p-2.5 flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-lavender">
             <svg id="iconSoundOn" class="w-4 h-4 md:w-5 md:h-5 text-sage" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
@@ -288,16 +299,16 @@
         <div class="flex gap-2.5 md:gap-3">
           <div id="pillX" class="pill flex-1 rounded-xl md:rounded-2xl px-2.5 py-2 md:py-2.5 flex items-center gap-2">
             <span class="badge w-8 h-8 md:w-9 md:h-9 shrink-0 rounded-lg md:rounded-xl flex items-center justify-center text-base md:text-lg font-extrabold text-muted">X</span>
-            <span class="text-xs md:text-sm font-semibold truncate">Anda</span>
+            <span id="labelX" class="text-xs md:text-sm font-semibold truncate">Anda</span>
             <span class="dot ml-auto"></span>
           </div>
           <div id="pillO" class="pill flex-1 rounded-xl md:rounded-2xl px-2.5 py-2 md:py-2.5 flex items-center gap-2">
             <span class="badge w-8 h-8 md:w-9 md:h-9 shrink-0 rounded-lg md:rounded-xl flex items-center justify-center text-base md:text-lg font-extrabold text-sage">O</span>
-            <span class="text-xs md:text-sm font-semibold truncate">AI</span>
+            <span id="labelO" class="text-xs md:text-sm font-semibold truncate">AI</span>
             <span class="dot ml-auto"></span>
           </div>
         </div>
-        <p id="statusText" class="text-center text-xs sm:text-sm md:text-base font-semibold mt-2.5 md:mt-3 min-h-[1.25rem]">Giliran Anda</p>
+        <p id="statusText" class="text-center text-xs sm:text-sm md:text-base font-semibold mt-2.5 md:mt-3 min-h-[1.25rem]">Pilih giliran Anda</p>
       </div>
 
     </div>
@@ -309,6 +320,29 @@
       <div id="board" class="board" role="grid" aria-label="Papan Tic-Tac-Toe"></div>
     </div>
   </main>
+
+  <!-- PRE-GAME SETUP MODAL (Pilih Maju Pertama / Kedua) -->
+  <div id="setupModal" class="modal-backdrop fixed inset-0 z-40 hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+    <div id="setupCard" class="modal-card w-full max-w-[380px] rounded-[24px] p-6 sm:p-8 text-center">
+      <p id="setupNotice" class="hidden text-xs font-semibold text-ink/75 bg-lavender/40 rounded-xl py-1.5 px-3 mb-4">Posisi diubah, permainan di-reset</p>
+      <h2 id="setupTitle" class="text-xl sm:text-2xl font-extrabold tracking-tight text-ink mb-2">Siapa Maju Pertama?</h2>
+      <p class="text-xs sm:text-sm text-ink/65 font-medium mb-6">Pilih urutan giliran Anda sebelum papan dibuka.</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <button id="chooseFirstBtn" type="button"
+          class="neu-btn rounded-2xl p-4 flex flex-col items-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-lavender">
+          <span class="badge w-11 h-11 rounded-xl flex items-center justify-center text-2xl font-extrabold text-muted">X</span>
+          <span class="text-sm font-bold text-ink">Maju Pertama</span>
+          <span class="text-[11px] font-medium text-ink/55">Anda (X) jalan dulu</span>
+        </button>
+        <button id="chooseSecondBtn" type="button"
+          class="neu-btn rounded-2xl p-4 flex flex-col items-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-lavender">
+          <span class="badge w-11 h-11 rounded-xl flex items-center justify-center text-2xl font-extrabold text-sage">O</span>
+          <span class="text-sm font-bold text-ink">Maju Kedua</span>
+          <span class="text-[11px] font-medium text-ink/55">AI (X) jalan dulu</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- RESULT MODAL (Auto-Reset) -->
   <div id="resultModal" class="modal-backdrop fixed inset-0 z-50 hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -327,14 +361,13 @@
   (() => {
     'use strict';
 
-    const HUMAN = 'X';
-    const AI = 'O';
     const WIN_SCORE = 1e7;
 
     const $ = (id) => document.getElementById(id);
     const boardEl = $('board');
     const sizeSel = $('sizeSelect');
     const diffSel = $('difficultySelect');
+    const posSel = $('positionSelect');
     const resetBtn = $('resetBtn');
     const muteBtn = $('muteBtn');
     const iconSoundOn = $('iconSoundOn');
@@ -342,6 +375,13 @@
     const statusEl = $('statusText');
     const pillX = $('pillX');
     const pillO = $('pillO');
+    const labelX = $('labelX');
+    const labelO = $('labelO');
+    const setupModal = $('setupModal');
+    const setupCard = $('setupCard');
+    const setupNotice = $('setupNotice');
+    const chooseFirstBtn = $('chooseFirstBtn');
+    const chooseSecondBtn = $('chooseSecondBtn');
     const modalEl = $('resultModal');
     const modalCard = $('modalCard');
     const modalEmblem = $('modalEmblem');
@@ -354,7 +394,10 @@
       size: 3,
       winLength: 3,
       board: [],
-      current: HUMAN,
+      humanMark: 'X',
+      aiMark: 'O',
+      current: 'X',
+      awaitingSetup: true,
       over: false,
       busy: false,
       result: null,
@@ -686,8 +729,8 @@
         let h = 0;
         for (let k = 0; k < w.length; k++) {
           const v = board[w[k]];
-          if (v === AI) a++;
-          else if (v === HUMAN) h++;
+          if (v === S.aiMark) a++;
+          else if (v === S.humanMark) h++;
         }
         if (a && h) continue;
         if (a) score += sc[a];
@@ -751,14 +794,14 @@
        MINIMAX + ALPHA-BETA PRUNING (depth-limited 5-6)
        ========================================================= */
     function minimax(board, depth, alpha, beta, maximizing, last, empties) {
-      const lastP = maximizing ? HUMAN : AI;
+      const lastP = maximizing ? S.humanMark : S.aiMark;
       if (winsAt(board, last, lastP)) {
-        return lastP === AI ? WIN_SCORE + depth : -WIN_SCORE - depth;
+        return lastP === S.aiMark ? WIN_SCORE + depth : -WIN_SCORE - depth;
       }
       if (empties === 0) return 0;
       if (depth === 0 || performance.now() > S.deadline) return evaluate(board);
 
-      const p = maximizing ? AI : HUMAN;
+      const p = maximizing ? S.aiMark : S.humanMark;
       const moves = orderedMoves(board, p, S.cfg.branch);
       let best = maximizing ? -Infinity : Infinity;
 
@@ -794,8 +837,8 @@
     function mediumMove(board) {
       const empties = emptyCells(board);
       for (const m of empties) {
-        board[m] = HUMAN;
-        const threat = winsAt(board, m, HUMAN);
+        board[m] = S.humanMark;
+        const threat = winsAt(board, m, S.humanMark);
         board[m] = null;
         if (threat) return m;
       }
@@ -813,15 +856,15 @@
       }
 
       for (const m of empties) {
-        board[m] = AI;
-        const w = winsAt(board, m, AI);
+        board[m] = S.aiMark;
+        const w = winsAt(board, m, S.aiMark);
         board[m] = null;
         if (w) return m;
       }
 
       for (const m of empties) {
-        board[m] = HUMAN;
-        const w = winsAt(board, m, HUMAN);
+        board[m] = S.humanMark;
+        const w = winsAt(board, m, S.humanMark);
         board[m] = null;
         if (w) return m;
       }
@@ -829,13 +872,13 @@
       S.cfg = depthConfig(n);
       S.deadline = performance.now() + 900;
 
-      const moves = orderedMoves(board, AI, S.cfg.rootBranch);
+      const moves = orderedMoves(board, S.aiMark, S.cfg.rootBranch);
       let best = moves[0];
       let bestV = -Infinity;
       let alpha = -Infinity;
 
       for (const m of moves) {
-        board[m] = AI;
+        board[m] = S.aiMark;
         const v = minimax(board, S.cfg.depth - 1, alpha, Infinity, false, m, empties.length - 1);
         board[m] = null;
         if (v > bestV) { bestV = v; best = m; }
@@ -895,7 +938,7 @@
     function renderMark(i, p) {
       const cell = boardEl.children[i];
       if (!cell) return;
-      cell.classList.add('filled', p === HUMAN ? 'is-x' : 'is-o');
+      cell.classList.add('filled', p === 'X' ? 'is-x' : 'is-o');
       cell.setAttribute('aria-label', cell.getAttribute('aria-label') + ': ' + p);
       const span = document.createElement('span');
       span.className = 'mark';
@@ -906,7 +949,7 @@
         anime({
           targets: span,
           scale: [0, 1],
-          rotate: p === HUMAN ? [-90, 0] : [0, 0],
+          rotate: p === 'X' ? [-90, 0] : [0, 0],
           opacity: [0, 1],
           duration: 600,
           easing: 'easeOutElastic(1, .55)'
@@ -940,29 +983,107 @@
     function updateStatus() {
       pillX.classList.remove('active');
       pillO.classList.remove('active');
-      boardEl.classList.toggle('locked', S.over || S.busy);
+      labelX.textContent = S.humanMark === 'X' ? 'Anda' : 'AI';
+      labelO.textContent = S.humanMark === 'O' ? 'Anda' : 'AI';
+      boardEl.classList.toggle('locked', S.awaitingSetup || S.over || S.busy);
+
+      if (S.awaitingSetup) {
+        setStatus('Pilih giliran di layar');
+        return;
+      }
 
       if (S.over) {
         boardEl.classList.add('done');
         const w = S.result.winner;
-        if (w === HUMAN) {
-          pillX.classList.add('active');
-          setStatus('<span class="text-muted">X</span> Menang — Selamat!');
-        } else if (w === AI) {
-          pillO.classList.add('active');
-          setStatus('<span class="text-sage">O</span> (AI) Menang');
+        if (w === S.humanMark) {
+          (w === 'X' ? pillX : pillO).classList.add('active');
+          const cls = w === 'X' ? 'text-muted' : 'text-sage';
+          setStatus(`<span class="${cls}">${w}</span> Menang — Selamat!`);
+        } else if (w === S.aiMark) {
+          (w === 'X' ? pillX : pillO).classList.add('active');
+          const cls = w === 'X' ? 'text-muted' : 'text-sage';
+          setStatus(`<span class="${cls}">${w}</span> (AI) Menang`);
         } else {
           setStatus('Permainan Seri');
         }
         return;
       }
 
-      if (S.current === HUMAN) {
-        pillX.classList.add('active');
-        setStatus('Giliran Anda — <span class="text-muted font-extrabold">X</span>');
+      if (S.current === S.humanMark) {
+        (S.humanMark === 'X' ? pillX : pillO).classList.add('active');
+        const cls = S.humanMark === 'X' ? 'text-muted' : 'text-sage';
+        setStatus(`Giliran Anda — <span class="${cls} font-extrabold">${S.humanMark}</span>`);
       } else {
-        pillO.classList.add('active');
-        setStatus('AI <span class="text-sage font-extrabold">O</span> berpikir<span class="thinking"><span>.</span><span>.</span><span>.</span></span>');
+        (S.aiMark === 'X' ? pillX : pillO).classList.add('active');
+        const cls = S.aiMark === 'X' ? 'text-muted' : 'text-sage';
+        setStatus(`AI <span class="${cls} font-extrabold">${S.aiMark}</span> berpikir<span class="thinking"><span>.</span><span>.</span><span>.</span></span>`);
+      }
+    }
+
+    function showSetupModal(noticeText) {
+      if (noticeText) {
+        setupNotice.textContent = noticeText;
+        setupNotice.classList.remove('hidden');
+      } else {
+        setupNotice.classList.add('hidden');
+      }
+      setupModal.classList.remove('hidden');
+      setupModal.classList.add('flex');
+      if (hasAnime) {
+        anime.remove([setupModal, setupCard]);
+        anime({ targets: setupModal, opacity: [0, 1], duration: 280, easing: 'easeOutQuad' });
+        anime({ targets: setupCard, scale: [0.88, 1], opacity: [0, 1], duration: 380, easing: 'easeOutBack(1.3)' });
+      }
+    }
+
+    function hideSetupModal(immediate) {
+      if (setupModal.classList.contains('hidden')) return;
+      if (immediate || !hasAnime) {
+        setupModal.classList.add('hidden');
+        setupModal.classList.remove('flex');
+        return;
+      }
+      anime.remove([setupModal, setupCard]);
+      anime({ targets: setupCard, scale: [1, 0.92], opacity: [1, 0], duration: 220, easing: 'easeInQuad' });
+      anime({
+        targets: setupModal,
+        opacity: [1, 0],
+        duration: 220,
+        easing: 'easeInQuad',
+        complete: () => {
+          setupModal.classList.add('hidden');
+          setupModal.classList.remove('flex');
+          setupModal.style.opacity = '';
+          setupCard.style.opacity = '';
+          setupCard.style.transform = '';
+        }
+      });
+    }
+
+    function startWithPosition(humanMark) {
+      SFX.ensure();
+      S.humanMark = humanMark;
+      S.aiMark = humanMark === 'X' ? 'O' : 'X';
+      posSel.value = humanMark;
+      S.awaitingSetup = false;
+      S.current = 'X'; // X selalu jalan pertama
+      hideSetupModal(false);
+
+      if (S.aiMark === 'X') {
+        S.busy = true;
+        updateStatus();
+        const token = S.token;
+        setTimeout(() => {
+          if (token !== S.token || S.awaitingSetup || S.over) return;
+          const m = chooseAIMove();
+          if (token !== S.token) return;
+          if (m !== undefined && !S.board[m]) makeMove(m, S.aiMark);
+          S.busy = false;
+          if (!S.over) S.current = S.humanMark;
+          updateStatus();
+        }, 500);
+      } else {
+        updateStatus();
       }
     }
 
@@ -1009,16 +1130,16 @@
 
     function showResultModal(winner) {
       const token = S.token;
-      if (winner === HUMAN) {
+      if (winner === S.humanMark) {
         SFX.win();
-        modalEmblem.textContent = 'X';
-        modalEmblem.className = 'modal-emblem w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center text-3xl font-extrabold text-muted';
+        modalEmblem.textContent = winner;
+        modalEmblem.className = `modal-emblem w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center text-3xl font-extrabold ${winner === 'X' ? 'text-muted' : 'text-sage'}`;
         modalTitle.textContent = 'Victory!';
         modalMsg.textContent = 'Selamat, Anda berhasil mengalahkan AI.';
-      } else if (winner === AI) {
+      } else if (winner === S.aiMark) {
         SFX.lose();
-        modalEmblem.textContent = 'O';
-        modalEmblem.className = 'modal-emblem w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center text-3xl font-extrabold text-sage';
+        modalEmblem.textContent = winner;
+        modalEmblem.className = `modal-emblem w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center text-3xl font-extrabold ${winner === 'X' ? 'text-muted' : 'text-sage'}`;
         modalTitle.textContent = 'Defeat';
         modalMsg.textContent = 'AI berhasil memenangkan ronde ini.';
       } else {
@@ -1076,7 +1197,7 @@
     function makeMove(i, p) {
       S.board[i] = p;
       renderMark(i, p);
-      if (p === HUMAN) SFX.x();
+      if (p === 'X') SFX.x();
       else SFX.o();
 
       const res = checkWinner(S.board, S.size, S.winLength);
@@ -1093,29 +1214,29 @@
     }
 
     function handleCellClick(i) {
-      if (S.over || S.busy || S.current !== HUMAN || S.board[i]) return;
+      if (S.awaitingSetup || S.over || S.busy || S.current !== S.humanMark || S.board[i]) return;
       SFX.ensure();
 
-      makeMove(i, HUMAN);
+      makeMove(i, S.humanMark);
       if (S.over) { updateStatus(); return; }
 
-      S.current = AI;
+      S.current = S.aiMark;
       S.busy = true;
       updateStatus();
 
       const token = S.token;
       setTimeout(() => {
-        if (token !== S.token) return;
+        if (token !== S.token || S.awaitingSetup) return;
         const m = chooseAIMove();
-        if (token !== S.token) return;
-        if (m !== undefined && !S.board[m]) makeMove(m, AI);
+        if (token !== S.token || S.awaitingSetup) return;
+        if (m !== undefined && !S.board[m]) makeMove(m, S.aiMark);
         S.busy = false;
-        if (!S.over) S.current = HUMAN;
+        if (!S.over) S.current = S.humanMark;
         updateStatus();
       }, 360);
     }
 
-    function resetGame() {
+    function resetGame(noticeText) {
       S.token++;
       clearModalTimers();
       hideResultModal(true);
@@ -1123,7 +1244,8 @@
       S.winLength = Math.min(4, S.size);
       S.difficulty = diffSel.value;
       S.board = Array(S.size * S.size).fill(null);
-      S.current = HUMAN;
+      S.awaitingSetup = true;
+      S.current = 'X';
       S.over = false;
       S.busy = false;
       S.result = null;
@@ -1131,9 +1253,17 @@
       buildWindows(S.size, S.winLength);
       buildBoard();
       updateStatus();
+      showSetupModal(noticeText);
     }
 
     /* ---------- Events ---------- */
+    chooseFirstBtn.addEventListener('click', () => startWithPosition('X'));
+    chooseSecondBtn.addEventListener('click', () => startWithPosition('O'));
+
+    posSel.addEventListener('change', () => {
+      SFX.ensure();
+      resetGame('Posisi diubah, permainan di-reset');
+    });
     sizeSel.addEventListener('change', () => {
       SFX.ensure();
       resetGame();
