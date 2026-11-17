@@ -353,6 +353,160 @@
     const DIRS = [[0, 1], [1, 0], [1, 1], [1, -1]];
 
     /* =========================================================
+       EFEK SUARA (Web Audio API - Volume Tinggi, Anti-Clipping)
+       ========================================================= */
+    const SFX = (() => {
+      let ctx = null;
+      let master = null;
+      let echoIn = null;
+
+      function ensure() {
+        try {
+          if (!ctx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return null;
+            ctx = new AC();
+
+            // Compressor mencegah clipping saat chord megah dimainkan bersamaan
+            const comp = ctx.createDynamicsCompressor();
+            comp.threshold.value = -10;
+            comp.knee.value = 18;
+            comp.ratio.value = 6;
+            comp.attack.value = 0.004;
+            comp.release.value = 0.15;
+
+            master = ctx.createGain();
+            master.gain.value = 0.48; // Volume tinggi & jelas (0.3 - 0.6)
+            master.connect(comp);
+            comp.connect(ctx.destination);
+
+            // Echo / Delay bus untuk nuansa ruang megah
+            const delay = ctx.createDelay(1.0);
+            delay.delayTime.value = 0.19;
+            const fb = ctx.createGain();
+            fb.gain.value = 0.32;
+            const wet = ctx.createGain();
+            wet.gain.value = 0.35;
+            const lp = ctx.createBiquadFilter();
+            lp.type = 'lowpass';
+            lp.frequency.value = 2600;
+
+            echoIn = ctx.createGain();
+            echoIn.connect(delay);
+            delay.connect(lp);
+            lp.connect(fb);
+            fb.connect(delay);
+            lp.connect(wet);
+            wet.connect(master);
+          }
+          if (ctx.state === 'suspended') ctx.resume();
+          return ctx;
+        } catch {
+          return null;
+        }
+      }
+
+      function tone(type, f1, f2, dur, vol = 0.35, delay = 0, useEcho = false) {
+        const c = ensure();
+        if (!c) return;
+        const t = c.currentTime + delay;
+        const osc = c.createOscillator();
+        const gain = c.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(f1, t);
+        if (f2 && f2 !== f1) {
+          osc.frequency.exponentialRampToValueAtTime(Math.max(20, f2), t + dur);
+        }
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.linearRampToValueAtTime(vol, t + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        osc.connect(gain);
+        gain.connect(master);
+        if (useEcho && echoIn) gain.connect(echoIn);
+        osc.start(t);
+        osc.stop(t + dur + 0.03);
+      }
+
+      function warmChord(freqs, dur, vol, delay = 0, type = 'triangle', cutoff = 2400) {
+        const c = ensure();
+        if (!c) return;
+        const t = c.currentTime + delay;
+        const filter = c.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(cutoff, t);
+        filter.connect(master);
+        if (echoIn) filter.connect(echoIn);
+
+        freqs.forEach((f) => {
+          const osc = c.createOscillator();
+          const gain = c.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(f, t);
+          gain.gain.setValueAtTime(0.0001, t);
+          gain.gain.linearRampToValueAtTime(vol / freqs.length, t + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+          osc.connect(gain);
+          gain.connect(filter);
+          osc.start(t);
+          osc.stop(t + dur + 0.04);
+        });
+      }
+
+      return {
+        ensure,
+        x() {
+          // Pop/click pendek bernada rendah
+          tone('sine', 240, 105, 0.085, 0.55);
+        },
+        o() {
+          // Click pendek bernada lebih tinggi
+          tone('triangle', 480, 320, 0.075, 0.45);
+        },
+        win() {
+          // Fanfare Kemenangan: arpeggio C-E-G-C + chord mayor megah dengan echo
+          const arp = [523.25, 659.25, 783.99, 1046.5];
+          arp.forEach((f, idx) => {
+            tone('triangle', f, f, 0.28, 0.42, idx * 0.085, true);
+          });
+          // Chord mayor penutup yang megah (C4-E4-G4-C5-G5)
+          warmChord([261.63, 329.63, 392.0, 523.25, 783.99], 0.95, 0.85, 0.34, 'triangle', 3400);
+        },
+        lose() {
+          // Game Over: progresi chord minor turun yang megah namun sedih
+          warmChord([392.0, 466.16, 587.33], 0.34, 0.65, 0.0, 'sawtooth', 1400);   // Gm
+          warmChord([349.23, 415.3, 523.25], 0.34, 0.65, 0.28, 'sawtooth', 1200); // Fm
+          warmChord([261.63, 311.13, 392.0, 196.0], 0.9, 0.8, 0.56, 'sawtooth', 1000); // Cm dalam
+        },
+        draw() {
+          // Swoosh / buzz tebal yang netral
+          const c = ensure();
+          if (!c) return;
+          const t = c.currentTime;
+          const filter = c.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(950, t);
+          filter.frequency.exponentialRampToValueAtTime(220, t + 0.38);
+          filter.connect(master);
+
+          [175, 179].forEach((f) => {
+            const osc = c.createOscillator();
+            const gain = c.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(f, t);
+            osc.frequency.exponentialRampToValueAtTime(f * 0.72, t + 0.38);
+            gain.gain.setValueAtTime(0.0001, t);
+            gain.gain.linearRampToValueAtTime(0.28, t + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
+            osc.connect(gain);
+            gain.connect(filter);
+            osc.start(t);
+            osc.stop(t + 0.42);
+          });
+        }
+      };
+    })();
+
+    /* =========================================================
        LOGIKA INTI
        ========================================================= */
 
@@ -761,16 +915,19 @@
     function showResultModal(winner) {
       const token = S.token;
       if (winner === HUMAN) {
+        SFX.win();
         modalEmblem.textContent = 'X';
         modalEmblem.className = 'modal-emblem w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center text-3xl font-extrabold text-muted';
         modalTitle.textContent = 'Victory!';
         modalMsg.textContent = 'Selamat, Anda berhasil mengalahkan AI.';
       } else if (winner === AI) {
+        SFX.lose();
         modalEmblem.textContent = 'O';
         modalEmblem.className = 'modal-emblem w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center text-3xl font-extrabold text-sage';
         modalTitle.textContent = 'Defeat';
         modalMsg.textContent = 'AI berhasil memenangkan ronde ini.';
       } else {
+        SFX.draw();
         modalEmblem.textContent = 'XO';
         modalEmblem.className = 'modal-emblem w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center text-xl font-extrabold text-ink/70';
         modalTitle.textContent = 'Draw';
@@ -824,10 +981,14 @@
     function makeMove(i, p) {
       S.board[i] = p;
       renderMark(i, p);
+      if (p === HUMAN) SFX.x();
+      else SFX.o();
+
       const res = checkWinner(S.board, S.size, S.winLength);
       if (res) {
         S.over = true;
         S.result = res;
+
         if (res.winner !== 'draw') highlightWin(res.line);
         const token = S.token;
         S.modalDelayTimer = setTimeout(() => {
@@ -838,6 +999,7 @@
 
     function handleCellClick(i) {
       if (S.over || S.busy || S.current !== HUMAN || S.board[i]) return;
+      SFX.ensure();
 
       makeMove(i, HUMAN);
       if (S.over) { updateStatus(); return; }
