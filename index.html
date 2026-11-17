@@ -28,7 +28,7 @@
   <!-- Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
 
   <!-- Anime.js -->
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
@@ -36,77 +36,83 @@
   <style>
     :root {
       --bg: #E3E5F5;
-      --sd: #bec1d6;          /* shadow (gelap) */
-      --sl: #ffffff;          /* highlight (terang) */
+      --sd: #bec1d6;
+      --sl: #ffffff;
       --ink: #4A4A4A;
-      --x: #A3B1C6;           /* Muted Blue */
-      --o: #A5B5A5;           /* Sage Green */
-      --lav: #D1C4E9;         /* Soft Lavender */
-      --bw: min(78vw, 400px); /* lebar papan */
+      --x: #A3B1C6;
+      --o: #A5B5A5;
+      --lav: #D1C4E9;
     }
 
-    * { -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
     body {
       background: var(--bg);
       color: var(--ink);
       font-family: 'Poppins', system-ui, sans-serif;
+      margin: 0;
     }
 
-    /* ---------- Neumorphism utilities ---------- */
+    /* ---------- Neumorphism ---------- */
     .neu-raised {
       background: var(--bg);
-      box-shadow: 12px 12px 24px var(--sd), -12px -12px 24px var(--sl);
+      box-shadow: 10px 10px 22px var(--sd), -10px -10px 22px var(--sl);
     }
     .neu-inset {
       background: var(--bg);
-      box-shadow: inset 6px 6px 12px var(--sd), inset -6px -6px 12px var(--sl);
+      box-shadow: inset 5px 5px 10px var(--sd), inset -5px -5px 10px var(--sl);
     }
     .neu-btn {
       background: var(--bg);
-      box-shadow: 6px 6px 12px var(--sd), -6px -6px 12px var(--sl);
-      transition: box-shadow .25s ease, transform .2s ease, color .2s ease;
+      box-shadow: 5px 5px 10px var(--sd), -5px -5px 10px var(--sl);
+      transition: box-shadow .22s ease, transform .18s ease;
     }
     .neu-btn:hover {
-      box-shadow: 3px 3px 7px var(--sd), -3px -3px 7px var(--sl);
+      box-shadow: 3px 3px 6px var(--sd), -3px -3px 6px var(--sl);
     }
-    .neu-btn:active,
-    .neu-btn.pressed {
+    .neu-btn:active {
       box-shadow: inset 4px 4px 8px var(--sd), inset -4px -4px 8px var(--sl);
-      transform: scale(.98);
+      transform: scale(.97);
     }
     .neu-select:focus-within {
       outline: 2px solid var(--lav);
-      outline-offset: 3px;
+      outline-offset: 2px;
     }
     .neu-select select { color: var(--ink); }
     .neu-select select option { background: var(--bg); }
 
-    /* ---------- Turn indicator ---------- */
+    /* ---------- Turn Indicator ---------- */
     .pill {
       background: var(--bg);
-      box-shadow: 6px 6px 12px var(--sd), -6px -6px 12px var(--sl);
-      transition: box-shadow .35s ease, opacity .35s ease;
-      opacity: .65;
+      box-shadow: 5px 5px 10px var(--sd), -5px -5px 10px var(--sl);
+      transition: box-shadow .3s ease, opacity .3s ease;
+      opacity: .6;
     }
     .pill.active {
-      box-shadow: inset 5px 5px 10px var(--sd), inset -5px -5px 10px var(--sl);
+      box-shadow: inset 4px 4px 9px var(--sd), inset -4px -4px 9px var(--sl);
       opacity: 1;
     }
     .pill .dot {
-      width: 8px; height: 8px; border-radius: 9999px;
+      width: 8px;
+      height: 8px;
+      border-radius: 9999px;
       background: transparent;
       transition: background .3s ease;
     }
     .pill.active .dot { animation: pulse 1.4s ease-in-out infinite; }
     #pillX.active .dot { background: var(--x); }
     #pillO.active .dot { background: var(--o); }
+
     @keyframes pulse {
       0%, 100% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.6); opacity: .45; }
     }
+
     .badge {
-      box-shadow: 4px 4px 8px var(--sd), -4px -4px 8px var(--sl);
+      box-shadow: 3px 3px 6px var(--sd), -3px -3px 6px var(--sl);
       text-shadow: 1px 1px 2px rgba(120,125,150,.35), -1px -1px 2px #fff;
     }
 
@@ -118,28 +124,50 @@
     .thinking span:nth-child(3) { animation-delay: .4s; }
     @keyframes blink { 0%, 80%, 100% { opacity: .2; } 40% { opacity: 1; } }
 
-    /* ---------- Board ---------- */
+    /* ---------- Board & Responsive Sizing ---------- */
+    .board-wrap {
+      width: 100%;
+    }
     .board {
       display: grid;
-      width: var(--bw);
-      gap: var(--gap, 14px);
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      gap: var(--gap, 12px);
     }
     .cell {
-      aspect-ratio: 1 / 1;
-      border-radius: var(--r, 22px);
+      width: 100%;
+      height: 100%;
+      border-radius: var(--r, 20px);
       background: var(--bg);
       box-shadow: inset 5px 5px 10px var(--sd), inset -5px -5px 10px var(--sl);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: calc(var(--bw) / var(--n) * .46);
+      font-size: calc((100vw - 56px) / var(--n) * 0.44);
       font-weight: 800;
       line-height: 1;
       cursor: pointer;
       user-select: none;
-      transition: box-shadow .25s ease, background .35s ease;
+      transition: box-shadow .22s ease, background .32s ease;
       outline: none;
     }
+    @media (min-width: 768px) {
+      .board-wrap {
+        width: min(80vh, calc(100vw - 380px), 560px);
+      }
+      .cell {
+        font-size: calc(min(80vh, calc(100vw - 380px), 560px) / var(--n) * 0.44);
+      }
+    }
+    @media (min-width: 1024px) {
+      .board-wrap {
+        width: min(82vh, calc(100vw - 420px), 600px);
+      }
+      .cell {
+        font-size: calc(min(82vh, calc(100vw - 420px), 600px) / var(--n) * 0.44);
+      }
+    }
+
     .cell:focus-visible { outline: 2px solid var(--lav); outline-offset: 2px; }
     .cell:not(.filled):hover {
       box-shadow: inset 2px 2px 5px var(--sd), inset -2px -2px 5px var(--sl);
@@ -162,91 +190,89 @@
 
     .cell.win {
       background: linear-gradient(145deg, #ddd3f0, #c9bce2);
-      box-shadow: 6px 6px 12px var(--sd), -6px -6px 12px var(--sl);
+      box-shadow: 5px 5px 10px var(--sd), -5px -5px 10px var(--sl);
     }
     .cell.win.is-x .mark { color: #6f80a3; text-shadow: 1px 1px 2px rgba(255,255,255,.6); }
     .cell.win.is-o .mark { color: #6e866e; text-shadow: 1px 1px 2px rgba(255,255,255,.6); }
 
-    .board.done .cell:not(.win) { opacity: .7; transition: opacity .4s ease, box-shadow .25s ease; }
+    .board.done .cell:not(.win) {
+      opacity: .72;
+      transition: opacity .35s ease, box-shadow .22s ease;
+    }
   </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center p-4 sm:p-8 antialiased">
+<body class="min-h-screen w-full flex flex-col md:flex-row md:w-screen md:h-screen md:overflow-hidden antialiased">
 
-  <main class="neu-raised w-full max-w-[520px] rounded-[28px] p-5 sm:p-8">
+  <!-- TOP PANEL (Mobile) / LEFT SIDEBAR (Desktop) -->
+  <aside class="w-full md:w-[320px] lg:w-[350px] shrink-0 p-3 sm:p-4 md:p-6 flex flex-col md:h-full">
+    <div class="neu-raised rounded-[20px] md:rounded-[24px] p-3.5 sm:p-4 md:p-6 flex flex-col gap-3 md:gap-5 md:h-full md:justify-center">
 
-    <!-- Header -->
-    <header class="text-center mb-6">
-      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-ink">
+      <!-- Title -->
+      <h1 class="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight text-center text-ink">
         Tic<span class="text-muted">·</span>Tac<span class="text-sage">·</span>Toe
       </h1>
-    </header>
 
-    <!-- Controls -->
-    <section class="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto] gap-4 items-end mb-6">
-      <label class="block">
-        <span class="block text-[11px] font-semibold uppercase tracking-wider text-ink/60 ml-2 mb-2">Ukuran Grid</span>
-        <div class="neu-btn neu-select relative rounded-2xl">
-          <select id="sizeSelect" class="w-full appearance-none bg-transparent py-3 pl-4 pr-10 text-sm font-semibold outline-none cursor-pointer rounded-2xl">
-            <option value="3" selected>3 × 3</option>
-            <option value="4">4 × 4</option>
-            <option value="5">5 × 5</option>
-          </select>
-          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/50" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
-        </div>
-      </label>
-
-      <label class="block">
-        <span class="block text-[11px] font-semibold uppercase tracking-wider text-ink/60 ml-2 mb-2">Kesulitan</span>
-        <div class="neu-btn neu-select relative rounded-2xl">
-          <select id="difficultySelect" class="w-full appearance-none bg-transparent py-3 pl-4 pr-10 text-sm font-semibold outline-none cursor-pointer rounded-2xl">
-            <option value="easy">Mudah</option>
-            <option value="medium" selected>Sedang</option>
-            <option value="hard">Sulit</option>
-          </select>
-          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/50" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
-        </div>
-      </label>
-
-      <button id="resetBtn" type="button"
-        class="neu-btn col-span-2 sm:col-span-1 rounded-2xl py-3 px-5 text-sm font-semibold flex items-center justify-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-lavender">
-        <svg id="resetIcon" class="w-4 h-4 text-muted" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>
-        </svg>
-        Reset
-      </button>
-    </section>
-
-    <!-- Turn indicator -->
-    <section class="neu-inset rounded-3xl p-4 mb-6">
-      <div class="flex gap-3 sm:gap-4">
-        <div id="pillX" class="pill flex-1 rounded-2xl px-3 py-3 flex items-center gap-3">
-          <span class="badge w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-xl font-extrabold text-muted">X</span>
-          <div class="min-w-0">
-            <p class="text-[10px] uppercase tracking-wider text-ink/50 font-semibold leading-tight">Pemain</p>
-            <p class="text-sm font-semibold leading-tight truncate">Anda</p>
+      <!-- Controls: Horizontal compact bar on mobile, stacked on desktop -->
+      <div class="grid grid-cols-[1fr_1fr_auto] md:grid-cols-1 gap-2.5 md:gap-4 items-end">
+        <label class="block">
+          <span class="block text-[10px] md:text-[11px] font-semibold uppercase tracking-wider text-ink/60 ml-1.5 mb-1">Grid</span>
+          <div class="neu-btn neu-select relative rounded-2xl">
+            <select id="sizeSelect" class="w-full appearance-none bg-transparent py-2.5 md:py-3 pl-3 md:pl-4 pr-8 text-xs sm:text-sm font-semibold outline-none cursor-pointer rounded-2xl">
+              <option value="3" selected>3 × 3</option>
+              <option value="4">4 × 4</option>
+              <option value="5">5 × 5</option>
+            </select>
+            <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/50" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
           </div>
-          <span class="dot ml-auto"></span>
-        </div>
-        <div id="pillO" class="pill flex-1 rounded-2xl px-3 py-3 flex items-center gap-3">
-          <span class="badge w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-xl font-extrabold text-sage">O</span>
-          <div class="min-w-0">
-            <p class="text-[10px] uppercase tracking-wider text-ink/50 font-semibold leading-tight">Komputer</p>
-            <p class="text-sm font-semibold leading-tight truncate">AI</p>
-          </div>
-          <span class="dot ml-auto"></span>
-        </div>
-      </div>
-      <p id="statusText" class="text-center text-sm sm:text-base font-semibold mt-4 min-h-[1.5rem]">Giliran Anda</p>
-      <p id="ruleText" class="text-center text-[11px] text-ink/50 mt-1">Susun 3 sejajar untuk menang</p>
-    </section>
+        </label>
 
-    <!-- Board -->
-    <section class="flex justify-center">
-      <div class="neu-raised rounded-3xl p-3 sm:p-4">
-        <div id="board" class="board" role="grid" aria-label="Papan Tic-Tac-Toe"></div>
+        <label class="block">
+          <span class="block text-[10px] md:text-[11px] font-semibold uppercase tracking-wider text-ink/60 ml-1.5 mb-1">Kesulitan</span>
+          <div class="neu-btn neu-select relative rounded-2xl">
+            <select id="difficultySelect" class="w-full appearance-none bg-transparent py-2.5 md:py-3 pl-3 md:pl-4 pr-8 text-xs sm:text-sm font-semibold outline-none cursor-pointer rounded-2xl">
+              <option value="easy">Mudah</option>
+              <option value="medium" selected>Sedang</option>
+              <option value="hard">Sulit</option>
+            </select>
+            <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/50" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+          </div>
+        </label>
+
+        <button id="resetBtn" type="button" aria-label="Reset Permainan"
+          class="neu-btn rounded-2xl py-2.5 md:py-3 px-3.5 md:px-5 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 outline-none focus-visible:ring-2 focus-visible:ring-lavender">
+          <svg id="resetIcon" class="w-4 h-4 text-muted shrink-0" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>
+          </svg>
+          <span>Reset</span>
+        </button>
       </div>
-    </section>
+
+      <!-- Turn Indicator -->
+      <div class="neu-inset rounded-[18px] md:rounded-[20px] p-2.5 sm:p-3 md:p-4">
+        <div class="flex gap-2.5 md:gap-3">
+          <div id="pillX" class="pill flex-1 rounded-xl md:rounded-2xl px-2.5 py-2 md:py-2.5 flex items-center gap-2">
+            <span class="badge w-8 h-8 md:w-9 md:h-9 shrink-0 rounded-lg md:rounded-xl flex items-center justify-center text-base md:text-lg font-extrabold text-muted">X</span>
+            <span class="text-xs md:text-sm font-semibold truncate">Anda</span>
+            <span class="dot ml-auto"></span>
+          </div>
+          <div id="pillO" class="pill flex-1 rounded-xl md:rounded-2xl px-2.5 py-2 md:py-2.5 flex items-center gap-2">
+            <span class="badge w-8 h-8 md:w-9 md:h-9 shrink-0 rounded-lg md:rounded-xl flex items-center justify-center text-base md:text-lg font-extrabold text-sage">O</span>
+            <span class="text-xs md:text-sm font-semibold truncate">AI</span>
+            <span class="dot ml-auto"></span>
+          </div>
+        </div>
+        <p id="statusText" class="text-center text-xs sm:text-sm md:text-base font-semibold mt-2.5 md:mt-3 min-h-[1.25rem]">Giliran Anda</p>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- BOTTOM AREA (Mobile: full width) / RIGHT AREA (Desktop: centered in remaining space) -->
+  <main class="flex-1 flex items-center justify-center px-3 pb-4 pt-1 sm:p-4 md:p-8 min-h-0">
+    <div class="board-wrap neu-raised rounded-[22px] md:rounded-[28px] p-3 sm:p-4 md:p-5">
+      <div id="board" class="board" role="grid" aria-label="Papan Tic-Tac-Toe"></div>
+    </div>
   </main>
 
   <script>
@@ -263,7 +289,6 @@
     const diffSel = $('difficultySelect');
     const resetBtn = $('resetBtn');
     const statusEl = $('statusText');
-    const ruleEl = $('ruleText');
     const pillX = $('pillX');
     const pillO = $('pillO');
     const hasAnime = typeof window.anime === 'function';
@@ -277,9 +302,9 @@
       busy: false,
       result: null,
       difficulty: 'medium',
-      windows: [],      // semua "jendela" garis sepanjang winLength
-      cellWindows: [],  // index jendela yang memuat setiap sel
-      sc: [],           // bobot heuristik
+      windows: [],
+      cellWindows: [],
+      sc: [],
       cfg: null,
       deadline: 0,
       token: 0
@@ -300,7 +325,8 @@
           for (const [dr, dc] of DIRS) {
             const line = [r * size + c];
             for (let k = 1; k < winLength; k++) {
-              const nr = r + dr * k, nc = c + dc * k;
+              const nr = r + dr * k;
+              const nc = c + dc * k;
               if (nr < 0 || nr >= size || nc < 0 || nc >= size) break;
               if (board[nr * size + nc] !== p) break;
               line.push(nr * size + nc);
@@ -318,7 +344,8 @@
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
           for (const [dr, dc] of DIRS) {
-            const er = r + dr * (L - 1), ec = c + dc * (L - 1);
+            const er = r + dr * (L - 1);
+            const ec = c + dc * (L - 1);
             if (er < 0 || er >= size || ec < 0 || ec >= size) continue;
             const w = [];
             for (let k = 0; k < L; k++) w.push((r + dr * k) * size + (c + dc * k));
@@ -331,7 +358,6 @@
       S.windows = wins;
       S.cellWindows = cellWins;
 
-      // Bobot: k bidak dalam satu jendela bersih (tanpa bidak lawan)
       const sc = [];
       for (let k = 0; k <= L; k++) {
         sc.push(k === 0 ? 0 : k === L ? 100000 : k === L - 1 ? 1000 : Math.pow(8, k));
@@ -339,7 +365,6 @@
       S.sc = sc;
     }
 
-    // Cek kemenangan cepat hanya pada jendela yang memuat sel terakhir
     function winsAt(board, idx, p) {
       if (idx < 0) return false;
       for (const wi of S.cellWindows[idx]) {
@@ -362,57 +387,60 @@
     const randomOf = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
     /* =========================================================
-       HEURISTIK (pola sejajar sepanjang winLength, mis. 4-sejajar)
+       HEURISTIK POLA SEJAJAR (3x3 -> 3, 4x4/5x5 -> 4-sejajar)
        ========================================================= */
     function evaluate(board) {
       let score = 0;
       const sc = S.sc;
       for (const w of S.windows) {
-        let a = 0, h = 0;
+        let a = 0;
+        let h = 0;
         for (let k = 0; k < w.length; k++) {
           const v = board[w[k]];
           if (v === AI) a++;
           else if (v === HUMAN) h++;
         }
-        if (a && h) continue;           // jendela mati
+        if (a && h) continue;
         if (a) score += sc[a];
-        else if (h) score -= sc[h] * 1.25; // sedikit lebih defensif
+        else if (h) score -= sc[h] * 1.25;
       }
       return score;
     }
 
-    // Skor cepat sebuah langkah (untuk pengurutan langkah / move ordering)
     function moveScore(board, idx, p) {
       const sc = S.sc;
       let s = 0;
       for (const wi of S.cellWindows[idx]) {
         const w = S.windows[wi];
-        let own = 0, opp = 0;
+        let own = 0;
+        let opp = 0;
         for (let k = 0; k < w.length; k++) {
           const v = board[w[k]];
           if (!v) continue;
-          if (v === p) own++; else opp++;
+          if (v === p) own++;
+          else opp++;
         }
-        if (!opp) s += sc[own + 1];          // menyerang
-        if (!own) s += sc[opp + 1] * 0.9;    // bertahan
+        if (!opp) s += sc[own + 1];
+        if (!own) s += sc[opp + 1] * 0.9;
       }
       return s;
     }
 
-    // Kandidat: untuk papan besar hanya sel yang bertetangga dengan bidak
     function getCandidates(board) {
       const n = S.size;
       const all = emptyCells(board);
       if (n === 3 || all.length === n * n) return all;
       const out = [];
       for (const i of all) {
-        const r = (i / n) | 0, c = i % n;
+        const r = (i / n) | 0;
+        const c = i % n;
         let near = false;
         outer:
         for (let dr = -1; dr <= 1; dr++) {
           for (let dc = -1; dc <= 1; dc++) {
             if (!dr && !dc) continue;
-            const nr = r + dr, nc = c + dc;
+            const nr = r + dr;
+            const nc = c + dc;
             if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
             if (board[nr * n + nc]) { near = true; break outer; }
           }
@@ -431,7 +459,7 @@
     }
 
     /* =========================================================
-       MINIMAX + ALPHA-BETA PRUNING (depth-limited)
+       MINIMAX + ALPHA-BETA PRUNING (depth-limited 5-6)
        ========================================================= */
     function minimax(board, depth, alpha, beta, maximizing, last, empties) {
       const lastP = maximizing ? HUMAN : AI;
@@ -456,15 +484,15 @@
           if (v < best) best = v;
           if (best < beta) beta = best;
         }
-        if (alpha >= beta) break; // pruning
+        if (alpha >= beta) break;
       }
       return best;
     }
 
     function depthConfig(size) {
-      if (size === 3) return { depth: 9, branch: 9, rootBranch: 9 };   // penuh untuk 3x3
+      if (size === 3) return { depth: 6, branch: 9, rootBranch: 9 };
       if (size === 4) return { depth: 6, branch: 10, rootBranch: 14 };
-      return { depth: 5, branch: 10, rootBranch: 14 };                 // 5x5
+      return { depth: 5, branch: 10, rootBranch: 14 };
     }
 
     /* =========================================================
@@ -476,7 +504,6 @@
 
     function mediumMove(board) {
       const empties = emptyCells(board);
-      // Blokir jika pemain hampir menang (menang di langkah berikutnya)
       for (const m of empties) {
         board[m] = HUMAN;
         const threat = winsAt(board, m, HUMAN);
@@ -496,14 +523,13 @@
         return randomOf([(h - 1) * n + h - 1, (h - 1) * n + h, h * n + h - 1, h * n + h]);
       }
 
-      // Menang langsung
       for (const m of empties) {
         board[m] = AI;
         const w = winsAt(board, m, AI);
         board[m] = null;
         if (w) return m;
       }
-      // Blokir langsung
+
       for (const m of empties) {
         board[m] = HUMAN;
         const w = winsAt(board, m, HUMAN);
@@ -512,7 +538,7 @@
       }
 
       S.cfg = depthConfig(n);
-      S.deadline = performance.now() + 1200; // pengaman agar tidak freeze
+      S.deadline = performance.now() + 900;
 
       const moves = orderedMoves(board, AI, S.cfg.rootBranch);
       let best = moves[0];
@@ -543,13 +569,14 @@
        ========================================================= */
     function buildBoard() {
       const n = S.size;
-      const gap = n === 3 ? 14 : n === 4 ? 12 : 10;
+      const gap = n === 3 ? 12 : n === 4 ? 10 : 8;
       const radius = n === 3 ? 22 : n === 4 ? 18 : 16;
 
       boardEl.style.setProperty('--n', n);
       boardEl.style.setProperty('--gap', gap + 'px');
       boardEl.style.setProperty('--r', radius + 'px');
       boardEl.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+      boardEl.style.gridTemplateRows = `repeat(${n}, minmax(0, 1fr))`;
       boardEl.classList.remove('locked', 'done');
       boardEl.innerHTML = '';
 
@@ -567,11 +594,11 @@
       if (hasAnime) {
         anime({
           targets: boardEl.children,
-          scale: [0.8, 1],
+          scale: [0.85, 1],
           opacity: [0, 1],
-          duration: 550,
+          duration: 450,
           easing: 'easeOutQuart',
-          delay: anime.stagger(30, { grid: [n, n], from: 'center' })
+          delay: anime.stagger(25, { grid: [n, n], from: 'center' })
         });
       }
     }
@@ -592,7 +619,7 @@
           scale: [0, 1],
           rotate: p === HUMAN ? [-90, 0] : [0, 0],
           opacity: [0, 1],
-          duration: 700,
+          duration: 600,
           easing: 'easeOutElastic(1, .55)'
         });
       }
@@ -605,9 +632,9 @@
         anime({
           targets: cells,
           scale: [1, 1.08, 1],
-          duration: 700,
+          duration: 650,
           easing: 'easeInOutSine',
-          delay: anime.stagger(90)
+          delay: anime.stagger(80)
         });
       }
     }
@@ -617,7 +644,7 @@
       statusEl.innerHTML = html;
       if (hasAnime) {
         anime.remove(statusEl);
-        anime({ targets: statusEl, opacity: [0, 1], translateY: [6, 0], duration: 350, easing: 'easeOutQuad' });
+        anime({ targets: statusEl, opacity: [0, 1], translateY: [5, 0], duration: 300, easing: 'easeOutQuad' });
       }
     }
 
@@ -631,12 +658,12 @@
         const w = S.result.winner;
         if (w === HUMAN) {
           pillX.classList.add('active');
-          setStatus('<span class="text-muted">X</span> menang — Selamat!');
+          setStatus('<span class="text-muted">X</span> Menang — Selamat!');
         } else if (w === AI) {
           pillO.classList.add('active');
-          setStatus('<span class="text-sage">O</span> (AI) menang');
+          setStatus('<span class="text-sage">O</span> (AI) Menang');
         } else {
-          setStatus('Permainan seri');
+          setStatus('Permainan Seri');
         }
         return;
       }
@@ -673,14 +700,14 @@
 
       const token = S.token;
       setTimeout(() => {
-        if (token !== S.token) return; // game di-reset saat AI berpikir
+        if (token !== S.token) return;
         const m = chooseAIMove();
         if (token !== S.token) return;
         if (m !== undefined && !S.board[m]) makeMove(m, AI);
         S.busy = false;
         if (!S.over) S.current = HUMAN;
         updateStatus();
-      }, 450);
+      }, 360);
     }
 
     function resetGame() {
@@ -695,7 +722,6 @@
       S.result = null;
 
       buildWindows(S.size, S.winLength);
-      ruleEl.textContent = `Susun ${S.winLength} sejajar untuk menang`;
       buildBoard();
       updateStatus();
     }
@@ -705,7 +731,7 @@
     diffSel.addEventListener('change', () => { S.difficulty = diffSel.value; });
     resetBtn.addEventListener('click', () => {
       if (hasAnime) {
-        anime({ targets: '#resetIcon', rotate: '-=360', duration: 650, easing: 'easeOutCubic' });
+        anime({ targets: '#resetIcon', rotate: '-=360', duration: 600, easing: 'easeOutCubic' });
       }
       resetGame();
     });
